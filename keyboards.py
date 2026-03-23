@@ -25,4 +25,18 @@ def games_kb():
     kb.row(types.InlineKeyboardButton(text="🎰 КРУТИТЬ (50₽)", callback_data="play_slots"))
     kb.row(types.InlineKeyboardButton(text="⬅️ НАЗАД", callback_data="me"))
     return kb.as_markup()
+
+# keyboards.py
+def admin_kb():
+    builder = InlineKeyboardBuilder()
+    builder.row(types.InlineKeyboardButton(text="➕ Добавить товар", callback_data="add_product"))
+    builder.row(types.InlineKeyboardButton(text="📊 Статистика", callback_data="admin_stats"))
+    builder.row(types.InlineKeyboardButton(text="⬅️ Назад", callback_data="me"))
+    return builder.as_markup()
+
+def back_to_main():
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(text="⬅️ В меню", callback_data="me"))
+    return builder.as_markup()
+    
     
