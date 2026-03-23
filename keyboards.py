@@ -10,7 +10,7 @@ def main_kb(uid, admin_id):
     kb.row(types.InlineKeyboardButton(text="👤 ПРОФИЛЬ", callback_data="me"),
            types.InlineKeyboardButton(text="💰 ПОПОЛНИТЬ", callback_data="deposit"))
     if uid == admin_id:
-        kb.row(types.InlineKeyboardButton(text="⚙️ АДМИНКА", callback_data="admin"))
+        kb.row(types.InlineKeyboardButton(text="⚙️ АДМИНКА", callback_data="admin_panel"))
     return kb.as_markup()
 
 def shop_cat_kb(cats):
