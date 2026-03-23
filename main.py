@@ -53,7 +53,38 @@ async def buy_item(c: types.CallbackQuery):
         await c.message.answer(f"✅ ПОКУПКА ЗАВЕРШЕНА!\n\nВаш товар:\n{item['data']}")
     else:
         await c.answer("❌ Недостаточно средств!", show_alert=True)
-        
+
+# Состояния для создания товара
+class AdminState(StatesGroup):
+    add_item_name = State()
+    add_item_price = State()
+
+@dp.callback_query(F.data == "admin_panel")
+async def admin_main(c: types.CallbackQuery):
+    if c.from_user.id != ADMIN_ID: return
+    await c.message.edit_text("⚡️ **ПАНЕЛЬ УПРАВЛЕНИЯ**\n\nВыберите действие:", 
+                             reply_markup=kb.admin_kb())
+
+@dp.callback_query(F.data == "add_product")
+async def start_add_item(c: types.CallbackQuery, state: FSMContext):
+    await c.message.answer("Введите название товара:")
+    await state.set_state(AdminState.add_item_name)
+
+@dp.message(AdminState.add_item_name)
+async def add_item_name_proc(m: types.Message, state: FSMContext):
+    await state.update_data(name=m.text)
+    await m.answer("Теперь введите цену (только число):")
+    await state.set_state(AdminState.add_item_price)
+
+@dp.message(AdminState.add_item_price)
+async def add_item_price_proc(m: types.Message, state: FSMContext):
+    data = await state.get_data()
+    price = int(m.text)
+    await Database.conn.execute("INSERT INTO items (name, price) VALUES (?, ?)", (data['name'], price))
+    await Database.conn.commit()
+    await m.answer(f"✅ Товар `{data['name']}` добавлен за {price}₽")
+    await state.clear()
+    
 # профиль
 @dp.callback_query(F.data == "me")
 async def profile_handler(c: types.CallbackQuery):
@@ -88,16 +119,36 @@ async def play_slots(c: types.CallbackQuery):
     await c.message.edit_text(f"🎰 **SLOTS**\n\n{msg}\n\n{status}", reply_markup=kb.main_kb(c.from_user.id, ADMIN_ID))
 
 # п2п
-@dp.callback_query(F.data == "p2p_main")
-async def p2p_menu(c: types.CallbackQuery):
-    cursor = await Database.conn.execute("SELECT * FROM p2p_market WHERE status = 'SALE' LIMIT 5")
+@dp.callback_query(F.data == "p2p_market")
+async def p2p_view(c: types.CallbackQuery):
+    cursor = await Database.conn.execute("SELECT * FROM p2p_market WHERE status = 'SALE'")
     lots = await cursor.fetchall()
-    text = "🤝 **P2P БИРЖА (АКТИВНЫЕ ЛОТЫ)**\n\n"
-    if not lots: text += "Пока здесь пусто..."
-    for lot in lots:
-        text += f"🔹 {lot['title']} — {lot['price']}₽\n"
     
-    await c.message.edit_text(text, reply_markup=kb.main_kb(c.from_user.id, ADMIN_ID))
+    if not lots:
+        return await c.message.edit_text("🤝 **P2P МАРКЕТ**\n\nЛотов пока нет.", reply_markup=kb.back_to_main())
+
+    text = "🤝 **АКТУАЛЬНЫЕ ПРЕДЛОЖЕНИЯ:**\n\n"
+    for lot in lots:
+        text += f"📦 {lot['item_name']} | 💰 {lot['price']}₽\n"
+        text += f"👤 Продавец: ID{lot['seller_id']}\n/buy_p2p_{lot['id']}\n\n"
+    
+    await c.message.edit_text(text, reply_markup=kb.back_to_main())
+
+# почта
+@dp.callback_query(F.data == "mail")
+async def mail_box(c: types.CallbackQuery):
+    cursor = await Database.conn.execute("SELECT * FROM mail WHERE user_id = ? ORDER BY id DESC LIMIT 5", (c.from_user.id,))
+    letters = await cursor.fetchall()
+    
+    text = "📩 **ВАШИ СООБЩЕНИЯ:**\n\n"
+    if not letters:
+        text += "У вас нет новых писем."
+    else:
+        for mail in letters:
+            icon = "✉️" if mail['is_read'] == 0 else "📖"
+            text += f"{icon} {mail['sender']}: {mail['text'][:30]}...\n"
+    
+    await c.message.edit_text(text, reply_markup=kb.back_to_main())
 
 # --- [ ПОПОЛНЕНИЕ: STARS & CRYPTO ] ---
 @dp.callback_query(F.data == "deposit")
