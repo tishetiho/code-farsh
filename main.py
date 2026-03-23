@@ -79,5 +79,5 @@ async def runner():
     print("🚀 EMPIRE OS v43.0: ONLINE")
     await dp.start_polling(bot)
 
-if __name__ == "main":
+if __name__ == "__main__":
     asyncio.run(runner())
