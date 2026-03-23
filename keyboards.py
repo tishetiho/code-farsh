@@ -19,3 +19,10 @@ def shop_cat_kb(cats):
         kb.add(types.InlineKeyboardButton(text=cat, callback_data=f"cat_{cat}"))
     kb.adjust(2)
     return kb.as_markup()
+
+def games_kb():
+    kb = InlineKeyboardBuilder()
+    kb.row(types.InlineKeyboardButton(text="🎰 КРУТИТЬ (50₽)", callback_data="play_slots"))
+    kb.row(types.InlineKeyboardButton(text="⬅️ НАЗАД", callback_data="me"))
+    return kb.as_markup()
+    
