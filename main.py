@@ -12,6 +12,10 @@ from database import Database
 from logic import AIService, PaymentService, Games
 import keyboards as kb
 
+class AdminState(StatesGroup):
+    add_item_name = State()
+    add_item_price = State()
+
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
