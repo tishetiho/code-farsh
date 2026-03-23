@@ -31,7 +31,7 @@ class Database:
         """)
         await cls.conn.commit()
         async def init(self):
-    await self.conn.execute("""CREATE TABLE IF NOT EXISTS items 
+        await self.conn.execute("""CREATE TABLE IF NOT EXISTS items 
         (id INTEGER PRIMARY KEY, name TEXT, price INTEGER)""")
     
     await self.conn.execute("""CREATE TABLE IF NOT EXISTS p2p_market 
