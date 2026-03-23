@@ -30,6 +30,16 @@ class Database:
             );
         """)
         await cls.conn.commit()
+        async def init(self):
+    await self.conn.execute("""CREATE TABLE IF NOT EXISTS items 
+        (id INTEGER PRIMARY KEY, name TEXT, price INTEGER)""")
+    
+    await self.conn.execute("""CREATE TABLE IF NOT EXISTS p2p_market 
+        (id INTEGER PRIMARY KEY, seller_id INTEGER, item_name TEXT, price INTEGER, status TEXT)""")
+    
+    await self.conn.execute("""CREATE TABLE IF NOT EXISTS mail 
+        (id INTEGER PRIMARY KEY, user_id INTEGER, sender TEXT, text TEXT, is_read INTEGER DEFAULT 0)""")
+    await self.conn.commit()
 
     @classmethod
     async def get_user(cls, uid):
