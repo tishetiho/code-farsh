@@ -95,11 +95,21 @@ async def db_fix(m: types.Message):
         await Database.init()
         await m.answer("✅ Попробовал создать недостающие таблицы!")
         
-    # Сохраняем в базу
+    @dp.message(AdminState.add_item_price)
+async def proc_price(m: types.Message, state: FSMContext):
+    # 1. Сначала ПОЛУЧАЕМ данные, которые сохранили на предыдущем шаге
+    data = await state.get_data() 
+    
+    if not m.text.isdigit():
+        return await m.answer("Введите число!")
+
+    price = int(m.text)
+    
+    # 2. Теперь переменная 'data' существует, и в ней есть ['name']
     await Database.conn.execute("INSERT INTO items (name, price) VALUES (?, ?)", (data['name'], price))
     await Database.conn.commit()
     
-    await m.answer(f"🌟 Товар `{data['name']}` успешно добавлен за {price}₽!", reply_markup=kb.back_to_main())
+    await m.answer(f"✅ Товар {data['name']} добавлен!")
     await state.clear()
 
 # --- СИСТЕМА P2P БИРЖИ ---
