@@ -95,7 +95,7 @@ async def db_fix(m: types.Message):
         await Database.init()
         await m.answer("✅ Попробовал создать недостающие таблицы!")
         
-    @dp.message(AdminState.add_item_price)
+@dp.message(AdminState.add_item_price)
 async def proc_price(m: types.Message, state: FSMContext):
     # 1. Сначала ПОЛУЧАЕМ данные, которые сохранили на предыдущем шаге
     data = await state.get_data() 
