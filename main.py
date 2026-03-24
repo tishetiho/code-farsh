@@ -89,6 +89,12 @@ async def proc_price(m: types.Message, state: FSMContext):
     data = await state.get_data()
     price = int(m.text)
     
+@dp.message(Command("db_fix"))
+async def db_fix(m: types.Message):
+    if m.from_user.id == config.ADMIN_ID:
+        await Database.init()
+        await m.answer("✅ Попробовал создать недостающие таблицы!")
+        
     # Сохраняем в базу
     await Database.conn.execute("INSERT INTO items (name, price) VALUES (?, ?)", (data['name'], price))
     await Database.conn.commit()
